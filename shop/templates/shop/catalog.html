@@ -1,0 +1,45 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-12">
+        <h1>Каталог товаров</h1>
+        <p class="lead">Выберите категорию, чтобы посмотреть товары</p>
+    </div>
+</div>
+
+<div class="row">
+    {% for category in categories %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <!-- Заглушка для фото категории (можно добавить поле image в модель Category позже) -->
+            <div class="card-img-top" style="height: 180px; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center;">
+                {% if category.image %}
+                    <img src="{{ category.image.url }}" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: cover;">
+                {% else %}
+                    <i class="fas {{ category.icon|default:'fa-tshirt' }} fa-3x text-dark"></i>
+                {% endif %}
+            </div>
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ category.name }}</h5>
+                <p class="card-text text-muted">
+                    {% with count=category.product_count %}
+                        {{ count }} {% if count == 1 %}товар{% elif count|add:"0" in "234" %}товара{% else %}товаров{% endif %}
+                    {% endwith %}
+                </p>
+                <div class="mt-auto">
+                    <a href="{% url 'category_products' category.slug %}" class="btn btn-outline-primary">
+                        Перейти в категорию →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <p class="text-muted">Категории пока не добавлены.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+<div class="row mb-5">
+    <!-- Галерея фото -->
+    <div class="col-md-7">
+        <div class="position-relative mb-3">
+            {% if main_image and main_image.image %}
+                <img src="{{ main_image.image.url }}" 
+                     class="img-fluid rounded shadow-sm" 
+                     alt="{{ product.name }}" 
+                     id="mainImage" 
+                     style="max-height: 500px; object-fit: cover;">
+            {% else %}
+                <img src="https://via.placeholder.com/500x600?text=Нет+фото" 
+                     class="img-fluid rounded" 
+                     alt="Нет фото" 
+                     id="mainImage">
+            {% endif %}
+            {% if product.is_new %}
+                <span class="badge bg-danger position-absolute top-0 end-0 m-3">Новинка</span>
+            {% endif %}
+            {% if product.is_sale %}
+                <span class="badge bg-success position-absolute top-0 start-0 m-3">Распродажа</span>
+            {% endif %}
+        </div>
+
+        <!-- Миниатюры -->
+        <div class="d-flex gap-2">
+            {% for img in images %}
+                <img src="{{ img.image.url }}" 
+                     class="img-thumbnail {% if img == main_image %}border-primary border-3{% endif %}" 
+                     style="cursor: pointer; width: 80px; height: 80px; object-fit: cover;" 
+                     onclick="document.getElementById('mainImage').src='{{ img.image.url }}'; 
+                             Array.from(this.parentNode.children).forEach(el => el.classList.remove('border-primary', 'border-3'));
+                             this.classList.add('border-primary', 'border-3');"
+                     alt="Фото {{ forloop.counter }}">
+            {% empty %}
+                <p class="text-muted">Нет дополнительных фото.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Описание и форма -->
+    <div class="col-md-5">
+        <h1 class="mb-3">{{ product.name }}</h1>
+        <p class="text-muted">Артикул: <strong>{{ product.article }}</strong></p>
+
+        <!-- Цена -->
+        <div class="mb-4">
+            {% if product.old_price %}
+                <s class="text-muted fs-5">{{ product.old_price }} ₽</s><br>
+                <strong class="text-danger fs-3">{{ product.price }} ₽</strong>
+                {% if product.discount_percent > 0 %}
+                    <span class="badge bg-danger fs-6 ms-2">-{{ product.discount_percent }}%</span>
+                {% endif %}
+            {% else %}
+                <strong class="fs-3">{{ product.price }} ₽</strong>
+            {% endif %}
+        </div>
+
+        <!-- Форма добавления в заявку -->
+        <form method="post" action="{% url 'add_to_order' %}" class="border p-4 rounded bg-light mb-4">
+            {% csrf_token %}
+            <h5>Выберите размер и количество</h5>
+            
+            <div class="mb-3">
+                <label for="size" class="form-label">Размер:</label>
+                <select name="size" id="size" class="form-select" required>
+                    <option value="">Выберите размер</option>
+                    {% for ps in sizes %}
+                        <option value="{{ ps.id }}">
+                            {{ ps.size.name }} (в наличии: {{ ps.stock }} шт.)
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="quantity" class="form-label">Количество:</label>
+                <input type="number" name="quantity" id="quantity" class="form-control" min="1" max="99" value="1" required>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-lg w-100">
+                + Добавить в заявку
+            </button>
+        </form>
+
+        <!-- Условия опта -->
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            Минимальный заказ от 15 000 ₽ • Бесплатная доставка до ТК • Накопительные скидки
+        </div>
+
+        <!-- Ссылка на таблицу размеров -->
+        <p>
+            <a href="{% url 'size_chart' %}" target="_blank" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-ruler"></i> Таблица размеров
+            </a>
+        </p>
+    </div>
+</div>
+
+<!-- Подробное описание -->
+<div class="row mb-5">
+    <div class="col-12">
+        <h2>Описание товара</h2>
+        <div class="border p-4 bg-white rounded">
+            {{ product.description|linebreaks|default:"Описание отсутствует." }}
+        </div>
+    </div>
+</div>
+
+<!-- Рекомендации -->
+<div class="row mb-5">
+    <div class="col-12">
+        <h3>Вам также может понравиться</h3>
+        <div class="row">
+            {% for p in weekly_products|slice:":4" %}
+                {% if p.id != product.id %}
+                <div class="col-md-3">
+                    <div class="card h-100">
+                        {% if p.image %}
+                            <img src="{{ p.image.url }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ p.name }}">
+                        {% endif %}
+                        <div class="card-body p-2">
+                            <h6 class="card-title small">{{ p.name|truncatechars:30 }}</h6>
+                            <small class="text-danger">{{ p.price }} ₽</small>
+                        </div>
+                        <div class="card-footer p-2 text-center">
+                            <a href="{% url 'product_detail' p.id %}" class="btn btn-sm btn-outline-primary">Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

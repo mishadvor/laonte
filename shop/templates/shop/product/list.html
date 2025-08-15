@@ -1,0 +1,140 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+
+<!-- Главный баннер -->
+<section class="bg-secondary text-white text-center py-5 mb-5">
+    <div class="container">
+        <h1 class="display-5 fw-bold">Юбки женские оптом от производителя</h1>
+        <p class="lead">Модные коллекции 2025 • Минимальный заказ от 15 000 ₽ • Бесплатная доставка до ТК</p>
+        <a href="{% url 'catalog' %}" class="btn btn-light btn-lg mt-3">Перейти в каталог</a>
+    </div>
+</section>
+
+<!-- Условия для оптовиков -->
+<section class="container mb-5 text-center">
+    <div class="row g-4">
+        <div class="col-md-3">
+            <i class="fas fa-store fa-2x text-secondary"></i>
+            <h5 class="mt-3">Товар для Маркетплейсов</h5>
+            <p>Можно приобрести товары оптом для продажи на площадках маркетплейсов</p>
+        </div>
+        <div class="col-md-3">
+            <i class="fas fa-user-tie fa-2x text-secondary"></i>
+            <h5 class="mt-3">Личный менеджер</h5>
+            <p>Консультация онлайн</p>
+        </div>
+        <div class="col-md-3">
+            <i class="fas fa-qrcode fa-2x text-secondary"></i>
+            <h5 class="mt-3">Честный знак</h5>
+            <p>На весь товар</p>
+        </div>
+        <div class="col-md-3">
+            <i class="fas fa-chart-line fa-2x text-secondary"></i>
+            <h5 class="mt-3">Рост вашего бизнеса</h5>
+            <p>Качество, Цена, Стабильность</p>
+        </div>
+    </div>
+</section>
+
+<!-- Поиск -->
+<section class="container mb-5">
+    <form method="get" class="d-flex justify-content-center">
+        <div class="input-group w-75">
+            <input type="text" name="q" class="form-control form-control-lg" placeholder="Поиск по названию или артикулу..." value="{{ request.GET.q }}">
+            <button class="btn btn-secondary" type="submit">🔍 Найти</button>
+        </div>
+    </form>
+</section>
+
+<!-- Товары недели -->
+<section id="products" class="container mb-5">
+    <h2 class="text-center mb-4">Товары недели</h2>
+    <div class="row">
+        {% for product in weekly_products %}
+        <div class="col-md-2 mb-4">
+        <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">
+            <div class="card h-100 shadow-sm">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h6 class="card-title">{{ product.name|truncatechars:40 }}</h6>
+                    <p class="card-text">
+                        Арт: {{ product.article }}<br>
+                        {% if product.old_price %}
+                            <s class="text-muted">{{ product.old_price }} ₽</s> 
+                            <strong class="text-danger">{{ product.price }} ₽</strong>
+                        {% else %}
+                            <strong>{{ product.price }} ₽</strong>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-success btn-sm w-100">Подробнее</button>
+                </div>
+            </div>
+        </a>
+
+
+        </div>
+        {% empty %}
+        <p class="text-center">Пока нет товаров недели. Отметьте `is_sale` в админке.</p>
+        {% endfor %}
+    </div>
+    <div class="text-center mt-4">
+        <a href="{% url 'catalog' %}" class="btn btn-outline-primary">Весь каталог →</a>
+    </div>
+</section>
+
+<!-- Скидки -->
+<section class="bg-light py-5 mb-5">
+    <div class="container text-center">
+        <h2>Скидки до 70%</h2>
+        <p class="lead">Не упустите шанс купить модную одежду по цене ниже себестоимости</p>
+        <a href="?is_sale=True" class="btn btn-danger btn-lg">Распродажа</a>
+    </div>
+</section>
+
+<!-- Новинки -->
+<section class="container mb-5">
+    <h2 class="mb-4">🆕 Новинки сезона</h2>
+    <div class="row">
+        {% for product in products|slice:":8" %}
+            {% if product.is_new %}
+            <div class="col-md-3 mb-4">
+                <div class="card h-100">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name|truncatechars:40 }}</h5>
+                        <p class="card-text">
+                            Арт: {{ product.article }}<br>
+                            {% if product.old_price %}
+                                <s>{{ product.old_price }} ₽</s> <strong>{{ product.price }} ₽</strong>
+                            {% else %}
+                                <strong>{{ product.price }} ₽</strong>
+                            {% endif %}
+                        </p>
+                        <button class="btn btn-success btn-sm">+ В заявку</button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Призыв к действию -->
+<section class="bg-dark text-white text-center py-5">
+    <div class="container">
+        <h2>Готовы начать сотрудничество?</h2>
+        <p class="lead">Оставьте заявку — и наш менеджер свяжется с вами в течение 15 минут</p>
+        <button class="btn btn-warning btn-lg" data-bs-toggle="modal" data-bs-target="#callModal">
+            📞 Заказать звонок
+        </button>
+    </div>
+</section>
+
+{% endblock %}

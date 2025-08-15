@@ -1,0 +1,51 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <h1>
+        {% if category %}
+            {{ category.name }}
+        {% else %}
+            Каталог
+        {% endif %}
+    </h1>
+
+    {% if category %}
+        <p class="text-muted">
+            Найдено товаров: {{ products|length }}
+        </p>
+    {% endif %}
+
+    {% if products %}
+        <div class="row">
+            {% for product in products %}
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 shadow-sm">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="card-img-top" style="height: 180px; object-fit: cover;" alt="{{ product.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h6 class="card-title">{{ product.name|truncatechars:30 }}</h6>
+                        <p class="card-text">
+                            Арт: {{ product.article }}<br>
+                            {% if product.old_price %}
+                                <s class="text-muted">{{ product.old_price }} ₽</s><br>
+                                <strong class="text-danger">{{ product.price }} ₽</strong>
+                                {% if product.discount_percent > 0 %}
+                                    <span class="badge bg-danger">-{{ product.discount_percent }}%</span>
+                                {% endif %}
+                            {% else %}
+                                <strong>{{ product.price }} ₽</strong>
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-primary btn-sm">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">Товары не найдены.</p>
+    {% endif %}
+</div>
+{% endblock %}
