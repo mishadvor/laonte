@@ -2,139 +2,549 @@
 
 {% block content %}
 
-<!-- Главный баннер -->
-<section class="bg-secondary text-white text-center py-5 mb-5">
-    <div class="container">
-        <h1 class="display-5 fw-bold">Юбки женские оптом от производителя</h1>
-        <p class="lead">Модные коллекции 2025 • Минимальный заказ от 15 000 ₽ • Бесплатная доставка до ТК</p>
-        <a href="{% url 'catalog' %}" class="btn btn-light btn-lg mt-3">Перейти в каталог</a>
-    </div>
-</section>
+<style>
+/* ===== СТИЛИ ТОЛЬКО ДЛЯ СПИСКА ТОВАРОВ ===== */
 
-<!-- Условия для оптовиков -->
-<section class="container mb-5 text-center">
-    <div class="row g-4">
-        <div class="col-md-3">
-            <i class="fas fa-store fa-2x text-secondary"></i>
-            <h5 class="mt-3">Товар для Маркетплейсов</h5>
-            <p>Можно приобрести товары оптом для продажи на площадках маркетплейсов</p>
-        </div>
-        <div class="col-md-3">
-            <i class="fas fa-user-tie fa-2x text-secondary"></i>
-            <h5 class="mt-3">Личный менеджер</h5>
-            <p>Консультация онлайн</p>
-        </div>
-        <div class="col-md-3">
-            <i class="fas fa-qrcode fa-2x text-secondary"></i>
-            <h5 class="mt-3">Честный знак</h5>
-            <p>На весь товар</p>
-        </div>
-        <div class="col-md-3">
-            <i class="fas fa-chart-line fa-2x text-secondary"></i>
-            <h5 class="mt-3">Рост вашего бизнеса</h5>
-            <p>Качество, Цена, Стабильность</p>
-        </div>
-    </div>
-</section>
+/* Блок преимуществ (только для главной) */
+{% if not category %}
+.benefit-item {
+    padding: 24px 16px;
+    transition: all 0.3s;
+}
+.benefit-item:hover {
+    background: #f8f9fa;
+}
+.benefit-item .benefit-icon {
+    font-size: 2.2rem;
+    color: #1a1a2e;
+    margin-bottom: 12px;
+}
+.benefit-item .benefit-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #1a1a2e;
+}
+.benefit-item .benefit-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 0;
+}
+{% endif %}
 
-<!-- Поиск -->
-<section class="container mb-5">
-    <form method="get" class="d-flex justify-content-center">
-        <div class="input-group w-75">
-            <input type="text" name="q" class="form-control form-control-lg" placeholder="Поиск по названию или артикулу..." value="{{ request.GET.q }}">
-            <button class="btn btn-secondary" type="submit">🔍 Найти</button>
-        </div>
-    </form>
-</section>
+/* Заголовок категории */
+.category-title {
+    font-weight: 700;
+    color: #1a1a2e;
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+.category-description {
+    color: #6c757d;
+    font-size: 1.05rem;
+    margin-bottom: 24px;
+}
 
-<!-- Товары недели -->
-<section id="products" class="container mb-5">
-    <h2 class="text-center mb-4">Товары недели</h2>
-    <div class="row">
-        {% for product in weekly_products %}
-        <div class="col-md-2 mb-4">
-        <a href="{% url 'product_detail' product.id %}" class="text-decoration-none text-dark">
-            <div class="card h-100 shadow-sm">
-                {% if product.image %}
-                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 180px; object-fit: cover;">
-                {% endif %}
-                <div class="card-body">
-                    <h6 class="card-title">{{ product.name|truncatechars:40 }}</h6>
-                    <p class="card-text">
-                        Арт: {{ product.article }}<br>
-                        {% if product.old_price %}
-                            <s class="text-muted">{{ product.old_price }} ₽</s> 
-                            <strong class="text-danger">{{ product.price }} ₽</strong>
-                        {% else %}
-                            <strong>{{ product.price }} ₽</strong>
-                        {% endif %}
-                    </p>
-                </div>
-                <div class="card-footer">
-                    <button class="btn btn-success btn-sm w-100">Подробнее</button>
-                </div>
+/* Плитки товаров (огромные фото) */
+.product-tile {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    background: #f8f9fa;
+    transition: all 0.4s ease;
+    text-decoration: none !important;
+}
+.product-tile:hover {
+    transform: scale(1.02);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    z-index: 10;
+}
+.product-tile .tile-image {
+    width: 100%;
+    height: 420px;
+    object-fit: cover;
+    display: block;
+    background: #f8f9fa;
+}
+.product-tile .tile-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 30px 20px 20px 20px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    color: #ffffff;
+    opacity: 0;
+    transition: all 0.4s ease;
+}
+.product-tile:hover .tile-overlay {
+    opacity: 1;
+}
+.product-tile .tile-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 4px;
+    color: #ffffff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.product-tile .tile-price {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #ffcc00;
+}
+.product-tile .tile-price-old {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.6);
+    text-decoration: line-through;
+    margin-right: 8px;
+}
+.product-tile .tile-badge {
+    position: absolute;
+    top: 16px;
+    padding: 6px 18px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    z-index: 5;
+}
+.product-tile .tile-badge--new {
+    left: 16px;
+    background: #1a1a2e;
+    color: #ffffff;
+}
+.product-tile .tile-badge--sale {
+    right: 16px;
+    background: #dc3545;
+    color: #ffffff;
+}
+.product-tile .tile-sizes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+}
+.product-tile .tile-size {
+    display: inline-block;
+    padding: 2px 10px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(4px);
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* Сортировка */
+.sort-link {
+    font-size: 0.85rem;
+    color: #6c757d;
+    text-decoration: none;
+    padding: 6px 16px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+.sort-link:hover {
+    color: #1a1a2e;
+    border-color: #dee2e6;
+}
+.sort-link.active {
+    color: #1a1a2e;
+    border-color: #1a1a2e;
+    background: #ffffff;
+}
+
+/* Блок для оптовиков (только для главной) */
+{% if not category %}
+.wholesale-section {
+    background: #f8f9fa;
+    padding: 60px 0;
+}
+.wholesale-section .step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background: #1a1a2e;
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.wholesale-section .step-title {
+    font-weight: 700;
+    color: #1a1a2e;
+}
+.wholesale-section .step-desc {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+.wholesale-section .feature-list li {
+    padding: 10px 0;
+    font-size: 1rem;
+}
+.wholesale-section .feature-list i {
+    color: #1a1a2e;
+    width: 22px;
+}
+{% endif %}
+
+/* Кнопки */
+.btn-dark-square {
+    background: #1a1a2e;
+    color: #ffffff;
+    border: none;
+    border-radius: 0 !important;
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+}
+.btn-dark-square:hover {
+    background: #2d2d4e;
+    color: #ffffff;
+}
+.btn-outline-square {
+    background: transparent;
+    color: #1a1a2e;
+    border: 1px solid #1a1a2e;
+    border-radius: 0 !important;
+    padding: 10px 28px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+.btn-outline-square:hover {
+    background: #1a1a2e;
+    color: #ffffff;
+}
+
+/* Контакты (только для главной) */
+{% if not category %}
+.contact-section h2 {
+    font-weight: 700;
+    color: #1a1a2e;
+    font-size: 2.2rem;
+}
+.contact-section .phone-link {
+    color: #1a1a2e;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 2rem;
+}
+.contact-section .phone-link:hover {
+    color: #2d2d4e;
+}
+{% endif %}
+
+/* Адаптив */
+@media (max-width: 992px) {
+    .product-tile .tile-image {
+        height: 350px;
+    }
+}
+@media (max-width: 768px) {
+    .product-tile .tile-image {
+        height: 280px;
+    }
+    .product-tile .tile-title {
+        font-size: 0.9rem;
+    }
+    .product-tile .tile-price {
+        font-size: 1rem;
+    }
+    .product-tile .tile-overlay {
+        padding: 20px 16px 16px 16px;
+        opacity: 1;
+        background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    }
+    {% if not category %}
+    .contact-section .phone-link {
+        font-size: 1.5rem;
+    }
+    .contact-section h2 {
+        font-size: 1.6rem;
+    }
+    {% endif %}
+}
+@media (max-width: 576px) {
+    .product-tile .tile-image {
+        height: 200px;
+    }
+    .product-tile .tile-badge {
+        font-size: 0.55rem;
+        padding: 4px 12px;
+        top: 10px;
+    }
+    .product-tile .tile-badge--new {
+        left: 10px;
+    }
+    .product-tile .tile-badge--sale {
+        right: 10px;
+    }
+    .product-tile .tile-title {
+        font-size: 0.8rem;
+    }
+    .product-tile .tile-price {
+        font-size: 0.9rem;
+    }
+    .product-tile .tile-size {
+        font-size: 0.6rem;
+        padding: 1px 8px;
+    }
+    {% if not category %}
+    .benefit-item {
+        padding: 12px 8px;
+    }
+    .benefit-item .benefit-icon {
+        font-size: 1.5rem;
+    }
+    .benefit-item .benefit-title {
+        font-size: 0.8rem;
+    }
+    .benefit-item .benefit-text {
+        font-size: 0.7rem;
+    }
+    {% endif %}
+}
+</style>
+
+<!-- ===== ЗАГОЛОВОК КАТЕГОРИИ (если есть) ===== -->
+{% if category %}
+    <div class="category-title">{{ category.name }}</div>
+    {% if category.description %}
+        <div class="category-description">{{ category.description }}</div>
+    {% endif %}
+{% endif %}
+
+<!-- ===== БЛОК ПРЕИМУЩЕСТВ (ТОЛЬКО ДЛЯ ГЛАВНОЙ) ===== -->
+{% if not category %}
+<section class="container mb-4 pt-3">
+    <div class="row g-3 text-center">
+        <div class="col-6 col-md-3">
+            <div class="benefit-item">
+                <div class="benefit-icon"><i class="fas fa-tags"></i></div>
+                <div class="benefit-title">Цены от производителя</div>
+                <div class="benefit-text">Без посредников и наценок</div>
             </div>
-        </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="benefit-item">
+                <div class="benefit-icon"><i class="fas fa-boxes"></i></div>
+                <div class="benefit-title">Свободные размеры</div>
+                <div class="benefit-text">Выкупайте только нужные размеры</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="benefit-item">
+                <div class="benefit-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="benefit-title">Честный знак</div>
+                <div class="benefit-text">Полная маркировка товара</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="benefit-item">
+                <div class="benefit-icon"><i class="fas fa-store-alt"></i></div>
+                <div class="benefit-title">Товар для Маркетплейсов</div>
+                <div class="benefit-text">Отшиваем для вашего бренда или без бренда</div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
 
+<!-- ===== ТОВАРЫ (ОГРОМНЫЕ ПЛИТКИ) ===== -->
+<section class="container mb-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0" style="color: #1a1a2e; font-size: 1.8rem;">
+            {% if category %}
+                {{ category.name }}
+            {% else %}
+                Наши товары
+            {% endif %}
+        </h2>
+        {% if not category %}
+            <a href="{% url 'catalog' %}" class="text-decoration-none fw-bold" style="color: #1a1a2e; font-size: 1rem;">
+                Смотреть все →
+            </a>
+        {% endif %}
+    </div>
 
+    <!-- Сортировка -->
+    <div class="d-flex flex-wrap gap-2 mb-4">
+        <a href="?sort=desc&by=price" class="sort-link {% if sort_by == 'price' %}active{% endif %}">Цена по убыванию</a>
+        <a href="?sort=desc&by=new" class="sort-link {% if sort_by == 'new' %}active{% endif %}">По новизне</a>
+        <a href="?sort=desc&by=show" class="sort-link {% if sort_by == 'show' %}active{% endif %}">По популярности</a>
+    </div>
+
+    <!-- Сетка с огромными плитками -->
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <a href="{% url 'product_detail' product.id %}" class="product-tile">
+                <!-- Лейблы -->
+                {% if product.is_new %}
+                    <span class="tile-badge tile-badge--new">NEW</span>
+                {% endif %}
+                {% if product.is_sale %}
+                    <span class="tile-badge tile-badge--sale">Акция</span>
+                {% endif %}
+                
+                <!-- Фото -->
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="tile-image" loading="lazy">
+                {% else %}
+                    <div class="tile-image d-flex align-items-center justify-content-center bg-light text-muted">
+                        <span>Нет фото</span>
+                    </div>
+                {% endif %}
+                
+                <!-- Оверлей (появляется при наведении) -->
+                <div class="tile-overlay">
+                    <div class="tile-title">{{ product.name|truncatechars:50 }}</div>
+                    <div>
+                        {% if product.old_price %}
+                            <span class="tile-price-old">{{ product.old_price }} ₽</span>
+                            <span class="tile-price">{{ product.price }} ₽</span>
+                        {% else %}
+                            <span class="tile-price">{{ product.price }} ₽</span>
+                        {% endif %}
+                    </div>
+                    <div class="tile-sizes">
+                        {% for size in product.available_sizes|slice:":4" %}
+                            <span class="tile-size">{{ size }}</span>
+                        {% endfor %}
+                        {% if product.available_sizes|length > 4 %}
+                            <span class="tile-size">+{{ product.available_sizes|length|add:"-4" }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
         </div>
         {% empty %}
-        <p class="text-center">Пока нет товаров недели. Отметьте `is_sale` в админке.</p>
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">
+                {% if category %}
+                    В этой категории пока нет товаров.
+                {% else %}
+                    Товаров пока нет.
+                {% endif %}
+            </p>
+        </div>
         {% endfor %}
     </div>
-    <div class="text-center mt-4">
-        <a href="{% url 'catalog' %}" class="btn btn-outline-primary">Весь каталог →</a>
+
+    <!-- Пагинация -->
+    {% if products.has_other_pages %}
+    <div class="d-flex justify-content-center mt-5">
+        <nav>
+            <ul class="pagination">
+                {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">←</a>
+                    </li>
+                {% endif %}
+                {% for num in products.paginator.page_range %}
+                    <li class="page-item {% if products.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+                {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">→</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
     </div>
+    {% endif %}
 </section>
 
-<!-- Скидки -->
-<section class="bg-light py-5 mb-5">
-    <div class="container text-center">
-        <h2>Скидки до 70%</h2>
-        <p class="lead">Не упустите шанс купить модную одежду по цене ниже себестоимости</p>
-        <a href="?is_sale=True" class="btn btn-danger btn-lg">Распродажа</a>
-    </div>
-</section>
-
-<!-- Новинки -->
-<section class="container mb-5">
-    <h2 class="mb-4">🆕 Новинки сезона</h2>
-    <div class="row">
-        {% for product in products|slice:":8" %}
-            {% if product.is_new %}
-            <div class="col-md-3 mb-4">
-                <div class="card h-100">
-                    {% if product.image %}
-                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.name|truncatechars:40 }}</h5>
-                        <p class="card-text">
-                            Арт: {{ product.article }}<br>
-                            {% if product.old_price %}
-                                <s>{{ product.old_price }} ₽</s> <strong>{{ product.price }} ₽</strong>
-                            {% else %}
-                                <strong>{{ product.price }} ₽</strong>
-                            {% endif %}
-                        </p>
-                        <button class="btn btn-success btn-sm">+ В заявку</button>
+<!-- ===== БЛОК ДЛЯ ОПТОВИКОВ (ТОЛЬКО ДЛЯ ГЛАВНОЙ) ===== -->
+{% if not category %}
+<section class="wholesale-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-3" style="color: #1a1a2e; font-size: 2.2rem;">Оптовым покупателям</h2>
+                <ul class="feature-list list-unstyled">
+                    <li>
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Минимальный заказ от 1 упаковки</strong>
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Индивидуальные условия</strong> для постоянных клиентов
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Выкуп коллекции целиком</strong> со скидкой
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Фотосессии товара</strong> для маркетплейсов
+                    </li>
+                </ul>
+                <!--
+                <button class="btn btn-dark-square btn-lg px-5 mt-3" data-bs-toggle="modal" data-bs-target="#callModal">
+                    Получить прайс-лист
+                </button>
+            -->
+            </div>
+            <div class="col-lg-6 mt-4 mt-lg-0">
+                <div class="bg-white p-4 shadow-sm">
+                    <h5 class="fw-bold mb-3" style="color: #1a1a2e; font-size: 1.1rem;">Как мы работаем</h5>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex gap-3 align-items-start">
+                            <div class="step-number">1</div>
+                            <div>
+                                <div class="step-title">Заявка</div>
+                                <div class="step-desc">Позвоните нам, согласуем заказ</div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 align-items-start">
+                            <div class="step-number">2</div>
+                            <div>
+                                <div class="step-title">Сбор заказа</div>
+                                <div class="step-desc">Мы собираем или отшиваем изделия по вашей заявке</div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 align-items-start">
+                            <div class="step-number">3</div>
+                            <div>
+                                <div class="step-title">Оплата</div>
+                                <div class="step-desc">Безналичный расчет</div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 align-items-start">
+                            <div class="step-number">4</div>
+                            <div>
+                                <div class="step-title">Доставка</div>
+                                <div class="step-desc">Отправка по готовности</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            {% endif %}
-        {% endfor %}
+        </div>
     </div>
 </section>
 
-<!-- Призыв к действию -->
-<section class="bg-dark text-white text-center py-5">
-    <div class="container">
-        <h2>Готовы начать сотрудничество?</h2>
-        <p class="lead">Оставьте заявку — и наш менеджер свяжется с вами в течение 15 минут</p>
-        <button class="btn btn-warning btn-lg" data-bs-toggle="modal" data-bs-target="#callModal">
-            📞 Заказать звонок
-        </button>
-    </div>
+<!-- ===== КОНТАКТНЫЙ БЛОК ===== -->
+<section class="container py-5 text-center contact-section">
+    <h2 class="mb-3">Остались вопросы?</h2>
+    <p class="lead mb-4" style="color: #6c757d; font-size: 1.15rem;">
+        Позвоните нам — и мы поможем подобрать идеальную коллекцию для вашего бизнеса
+    </p>
+    <h3 class="mb-4">
+        <i class="fas fa-phone-alt me-2" style="color: #1a1a2e;"></i>
+        <a href="tel:+79646220033" class="phone-link">+7-964-622-00-33</a>
+    </h3>
+   <!--
+    <button class="btn btn-dark-square btn-lg px-5" data-bs-toggle="modal" data-bs-target="#callModal">
+        Заказать звонок
+    </button>
+-->
 </section>
+{% endif %}
 
 {% endblock %}

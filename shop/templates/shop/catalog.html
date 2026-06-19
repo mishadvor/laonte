@@ -1,45 +1,272 @@
 {% extends "shop/base.html" %}
 
 {% block content %}
-<div class="row mb-5">
-    <div class="col-12">
-        <h1>Каталог товаров</h1>
-        <p class="lead">Выберите категорию, чтобы посмотреть товары</p>
-    </div>
+
+<style>
+    /* ===== СТИЛИ ДЛЯ СТРАНИЦЫ КАТАЛОГА (СПИСОК КАТЕГОРИЙ) ===== */
+    
+    .catalog-header {
+        margin-bottom: 32px;
+    }
+    .catalog-title {
+        font-weight: 700;
+        color: #1a1a2e;
+        font-size: 2rem;
+        margin-bottom: 4px;
+    }
+    .catalog-subtitle {
+        color: #6c757d;
+        font-size: 1.05rem;
+    }
+    
+    /* ===== КАРТОЧКИ КАТЕГОРИЙ С ВЕРТИКАЛЬНЫМИ ФОТО 3:4 ===== */
+    .category-card {
+        display: block;
+        transition: all 0.3s ease;
+        border: none !important;
+        border-radius: 0 !important;
+        background: #ffffff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        height: 100%;
+        overflow: hidden;
+        text-decoration: none !important;
+        color: inherit !important;
+        cursor: pointer;
+    }
+    .category-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.12) !important;
+    }
+    
+    /* ===== ВЕРТИКАЛЬНЫЙ ФОРМАТ 3:4 ===== */
+    .category-card .card-img-top {
+        position: relative;
+        width: 100%;
+        padding-bottom: 133.33%; /* 4/3 = 1.3333 => 133.33% */
+        background: #f8f9fa;
+        overflow: hidden;
+        border-radius: 0;
+    }
+    .category-card .card-img-top .img-wrapper {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    .category-card:hover .card-img-top .img-wrapper {
+        transform: scale(1.03);
+    }
+    .category-card .card-img-top .img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: all 0.3s ease;
+    }
+    .category-card .card-img-top .img-wrapper .category-icon {
+        font-size: 5rem;
+        color: #1a1a2e;
+        opacity: 0.25;
+        transition: all 0.3s ease;
+    }
+    .category-card:hover .card-img-top .img-wrapper .category-icon {
+        opacity: 0.5;
+        transform: scale(1.1);
+    }
+    
+    /* ===== ОВЕРЛЕЙ ПРИ НАВЕДЕНИИ ===== */
+    .category-card .card-img-top .img-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+    }
+    .category-card:hover .card-img-top .img-overlay {
+        background: rgba(26, 26, 46, 0.4);
+    }
+    .category-card .card-img-top .img-overlay .overlay-text {
+        color: #ffffff;
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        background: rgba(0,0,0,0.3);
+        padding: 8px 24px;
+        backdrop-filter: blur(4px);
+        border: 2px solid rgba(255,255,255,0.3);
+    }
+    .category-card:hover .card-img-top .img-overlay .overlay-text {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .category-card .card-body {
+        padding: 16px 18px 14px 18px;
+    }
+    .category-card .card-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #1a1a2e;
+        margin-bottom: 4px;
+        transition: all 0.3s ease;
+    }
+    .category-card:hover .card-title {
+        color: #2d2d4e;
+    }
+    .category-card .card-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+    
+    /* ===== КНОПКА В КАРТОЧКЕ (опционально) ===== */
+    .category-card .card-footer {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 18px 18px 18px !important;
+    }
+    .btn-outline-dark-square {
+        background: transparent;
+        color: #1a1a2e;
+        border: 1px solid #1a1a2e;
+        border-radius: 0 !important;
+        padding: 8px 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.3s;
+        width: 100%;
+        pointer-events: none; /* ← кнопка не кликабельна, т.к. вся карточка кликабельна */
+    }
+    
+    /* ===== АДАПТИВ ===== */
+    @media (max-width: 992px) {
+        .category-card .card-img-top .img-wrapper .category-icon {
+            font-size: 4rem;
+        }
+        .category-card .card-img-top .img-overlay .overlay-text {
+            font-size: 0.9rem;
+            padding: 6px 18px;
+        }
+    }
+    @media (max-width: 768px) {
+        .catalog-title {
+            font-size: 1.6rem;
+        }
+        .category-card .card-title {
+            font-size: 1rem;
+        }
+        .category-card .card-img-top .img-wrapper .category-icon {
+            font-size: 3.5rem;
+        }
+        .category-card .card-img-top .img-overlay .overlay-text {
+            font-size: 0.8rem;
+            padding: 4px 14px;
+        }
+    }
+    @media (max-width: 576px) {
+        .catalog-title {
+            font-size: 1.3rem;
+        }
+        .catalog-subtitle {
+            font-size: 0.9rem;
+        }
+        .category-card .card-title {
+            font-size: 0.9rem;
+        }
+        .category-card .card-text {
+            font-size: 0.75rem;
+        }
+        .btn-outline-dark-square {
+            font-size: 0.75rem;
+            padding: 6px 14px;
+        }
+        .category-card .card-img-top .img-wrapper .category-icon {
+            font-size: 2.8rem;
+        }
+        .category-card .card-img-top .img-overlay .overlay-text {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-width: 1px;
+        }
+    }
+</style>
+
+<!-- ===== ЗАГОЛОВОК ===== -->
+<div class="catalog-header">
+    <h1 class="catalog-title">Каталог товаров</h1>
+    <p class="catalog-subtitle">Выберите категорию, чтобы посмотреть товары</p>
 </div>
 
-<div class="row">
+<!-- ===== КАТЕГОРИИ (ВСЯ КАРТОЧКА КЛИКАБЕЛЬНА) ===== -->
+{% if categories %}
+<div class="row g-4">
     {% for category in categories %}
-    <div class="col-md-4 mb-4">
-        <div class="card h-100 shadow-sm">
-            <!-- Заглушка для фото категории (можно добавить поле image в модель Category позже) -->
-            <div class="card-img-top" style="height: 180px; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center;">
-                {% if category.image %}
-                    <img src="{{ category.image.url }}" class="img-fluid" style="max-height: 100%; max-width: 100%; object-fit: cover;">
-                {% else %}
-                    <i class="fas {{ category.icon|default:'fa-tshirt' }} fa-3x text-dark"></i>
-                {% endif %}
-            </div>
-            <div class="card-body d-flex flex-column">
-                <h5 class="card-title">{{ category.name }}</h5>
-                <p class="card-text text-muted">
-                    {% with count=category.product_count %}
-                        {{ count }} {% if count == 1 %}товар{% elif count|add:"0" in "234" %}товара{% else %}товаров{% endif %}
-                    {% endwith %}
-                </p>
-                <div class="mt-auto">
-                    <a href="{% url 'category_products' category.slug %}" class="btn btn-outline-primary">
-                        Перейти в категорию →
-                    </a>
+    <div class="col-6 col-md-4 col-lg-3">
+        <a href="{% url 'category_products' category.slug %}" class="category-card">
+            <!-- Фото категории (вертикальное 3:4) -->
+            <div class="card-img-top">
+                <div class="img-wrapper">
+                    {% if category.image %}
+                        <img src="{{ category.image.url }}" alt="{{ category.name }}" loading="lazy">
+                    {% else %}
+                        <i class="fas {{ category.icon|default:'fa-tshirt' }} category-icon"></i>
+                    {% endif %}
+                </div>
+                <!-- Оверлей при наведении -->
+                <div class="img-overlay">
+                    <span class="overlay-text">
+                        <i class="fas fa-arrow-right me-2"></i>Перейти
+                    </span>
                 </div>
             </div>
-        </div>
-    </div>
-    {% empty %}
-    <div class="col-12">
-        <p class="text-muted">Категории пока не добавлены.</p>
+            
+            <!-- Информация -->
+            <div class="card-body">
+                <h5 class="card-title">{{ category.name }}</h5>
+                <p class="card-text">
+                    {% with count=category.product_count %}
+                        <i class="fas fa-tshirt me-1"></i>
+                        {{ count }} 
+                        {% if count == 1 %}
+                            товар
+                        {% elif count|add:"0" in "234" %}
+                            товара
+                        {% else %}
+                            товаров
+                        {% endif %}
+                    {% endwith %}
+                </p>
+            </div>
+            
+            <!-- Кнопка (визуально, но не кликабельна) -->
+            <div class="card-footer">
+                <span class="btn btn-outline-dark-square">
+                    <i class="fas fa-arrow-right"></i>Перейти в категорию
+                </span>
+            </div>
+        </a>
     </div>
     {% endfor %}
 </div>
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+    <p class="text-muted">Категории пока не добавлены.</p>
+</div>
+{% endif %}
 
 {% endblock %}

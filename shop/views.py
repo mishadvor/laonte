@@ -6,7 +6,17 @@ from .forms import ContactForm
 from django.shortcuts import render, get_object_or_404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from .models import Product, Category, Size, ProductSize, Order, OrderItem
+from .models import (
+    Product,
+    Category,
+    Size,
+    ProductSize,
+    Order,
+    OrderItem,
+    ProductImage,
+    SiteSettings,
+    AboutUs,
+)
 
 
 def product_list(request, category_slug=None):
@@ -260,3 +270,15 @@ def category_products(request, category_slug):
         "shop/product/category_list.html",
         {"category": category, "products": products},
     )
+
+
+def about_us(request):
+    """
+    Страница "О нас"
+    """
+    try:
+        about = AboutUs.objects.get(is_active=True)
+    except AboutUs.DoesNotExist:
+        about = None
+
+    return render(request, "shop/about.html", {"about": about})

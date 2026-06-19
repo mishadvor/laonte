@@ -24,6 +24,7 @@ urlpatterns = [
     path("add-to-order/", views.add_to_order, name="add_to_order"),
     path("order/", views.view_order, name="view_order"),
     path("order/submit/", views.submit_order, name="submit_order"),
+    path("about/", views.about_us, name="about_us"),
 ]
 
 if settings.DEBUG:

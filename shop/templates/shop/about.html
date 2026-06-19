@@ -1,0 +1,28 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row align-items-center">
+        {% if about.image %}
+            <div class="col-md-6">
+                <img src="{{ about.image.url }}" class="img-fluid rounded shadow" alt="О нас">
+            </div>
+        {% endif %}
+
+        <div class="{% if about.image %}col-md-6{% else %}col-12{% endif %}">
+            <h1>{{ about.title }}</h1>
+            <div class="content">
+                {{ about.content|safe }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Пример текста (если не используешь модель) -->
+    {% if not about %}
+        <h1>О нас</h1>
+        <p>Мы — команда, которая сама отшивает женские юбки, с 10-летним опытом в производстве и оптовой продаже. Являемся производителями, поэтому предлагаем лучшие цены.</p>
+        <p>Наш ассортимент — модные юбки малых и больших размеров.</p>
+        <p></p>
+    </div>
+{% endif %}
+{% endblock %}

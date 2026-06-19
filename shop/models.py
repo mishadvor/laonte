@@ -33,10 +33,29 @@ class Product(models.Model):
     slug = models.SlugField("URL", unique=True, blank=True)
     article = models.CharField("Артикул", max_length=50, blank=True)
     description = models.TextField("Описание", blank=True)
-    price = models.DecimalField("Цена опт", max_digits=10, decimal_places=2)
+    price = models.DecimalField(
+        "Цена опт", max_digits=10, decimal_places=2, blank=True, null=True
+    )
     old_price = models.DecimalField(
         "Старая цена", max_digits=10, decimal_places=2, blank=True, null=True
     )
+
+    # ===== НОВЫЕ ПОЛЯ ДЛЯ КАСТОМНОЙ ЦЕНЫ =====
+    PRICE_TYPE_CHOICES = [
+        ("number", "Числовая цена"),
+        ("custom", "Текстовая цена"),
+    ]
+    price_type = models.CharField(
+        "Тип цены", max_length=10, choices=PRICE_TYPE_CHOICES, default="number"
+    )
+    price_custom_text = models.CharField(
+        "Текст цены",
+        max_length=100,
+        blank=True,
+        help_text='Например: "По запросу", "Звоните", "Договорная"',
+    )
+    # =====================================
+
     image = models.ImageField("Изображение", upload_to="products/", blank=True)
     available = models.BooleanField("В наличии", default=True)
     is_new = models.BooleanField("Новинка", default=False)
@@ -125,3 +144,55 @@ class ProductImage(models.Model):
         verbose_name = "Фото товара"
         verbose_name_plural = "Фото товаров"
         ordering = ["order"]
+
+
+class SiteSettings(models.Model):
+    company_name = models.CharField(
+        "Название компании", max_length=100, default="Laonte Lia"
+    )
+    phone = models.CharField("Телефон", max_length=20, blank=True)
+    phone_extra = models.CharField(
+        "Доп. телефон",
+        max_length=20,
+        blank=True,
+        help_text="Например: 8 (800) 555-35-35",
+    )
+    email = models.EmailField("Email", blank=True)
+    address = models.CharField("Адрес", max_length=200, blank=True)
+    work_hours = models.CharField(
+        "График работы",
+        max_length=100,
+        blank=True,
+        help_text="Например: Пн–Пт: 9:00–18:00",
+    )
+    footer_text = models.CharField(
+        "Текст в подвале",
+        max_length=200,
+        blank=True,
+        default="&copy; 2026 Laonte Lia — Все права защищены",
+    )
+
+    vk_link = models.URLField("VK", blank=True)
+    telegram_link = models.URLField("Telegram", blank=True)
+    instagram_link = models.URLField("Instagram", blank=True)
+
+    class Meta:
+        verbose_name = "Настройки сайта"
+        verbose_name_plural = "Настройки сайта"
+
+    def __str__(self):
+        return "Настройки сайта"
+
+
+class AboutUs(models.Model):
+    title = models.CharField("Заголовок", max_length=100, default="О нас")
+    content = models.TextField("Текст", help_text="Можно использовать HTML")
+    image = models.ImageField("Фото", upload_to="about/", blank=True, null=True)
+    is_active = models.BooleanField("Активно", default=True)
+
+    class Meta:
+        verbose_name = "О нас"
+        verbose_name_plural = "О нас"
+
+    def __str__(self):
+        return self.title
