@@ -1,0 +1,42 @@
+# База данных
+db.sqlite3
+
+# Медиафайлы (загруженные пользователем)
+media/
+
+# Кэш Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Статика (собирается на сервере)
+static/
+
+# Виртуальное окружение
+venv/
+env/
+.venv/
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Локальные настройки
+.env
+*.local.py
+settings_local.py
+
+# Файлы IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Логи
+*.log
+
+# Временные файлы
+*.tmp
+*.bak
