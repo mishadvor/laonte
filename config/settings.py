@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "shop",
+    "django_recaptcha",
 ]
 
 MIDDLEWARE = [
@@ -141,3 +142,6 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # EMAIL_HOST_USER = 'ваш@gmail.com'
 # EMAIL_HOST_PASSWORD = 'ваш_пароль_или_токен'
 # DEFAULT_FROM_EMAIL = 'ваш@gmail.com'
+
+RECAPTCHA_PUBLIC_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"  # тестовый ключ
+RECAPTCHA_PRIVATE_KEY = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"  # тестовый ключ
