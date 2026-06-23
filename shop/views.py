@@ -110,8 +110,8 @@ def contact(request):
             send_mail(
                 subject=f"Новый запрос от {cd['name']}",
                 message=f"Имя: {cd['name']}\nТелефон: {cd['phone']}\nСообщение: {cd['message']}",
-                from_email="site@laonte.ru",
-                recipient_list=["manager@laonte.ru"],
+                from_email="info@laontelia.ru",
+                recipient_list=["info@laontelia.ru"],
                 fail_silently=False,
             )
             return render(request, "shop/contact_success.html")
@@ -197,8 +197,8 @@ def submit_order(request):
                 Заявка содержит {len(session_order)} позиций.
                 Детали: http://127.0.0.1:8000/admin/shop/order/{order.id}/
             """,
-            from_email="site@laonte.ru",
-            recipient_list=["manager@laonte.ru"],
+            from_email="info@laontelia.ru",
+            recipient_list=["info@laontelia.ru"],
             fail_silently=False,
         )
 
