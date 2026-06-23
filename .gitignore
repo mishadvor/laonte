@@ -46,3 +46,4 @@ settings_local.py
 *.tmp
 *.bak
 
+db.sqlite3
